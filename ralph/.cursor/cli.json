@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "git *",
+      "npm *",
+      "pnpm *",
+      "yarn *",
+      "node *",
+      "npx *",
+      "cat *",
+      "ls *",
+      "grep *",
+      "find *",
+      "head *",
+      "tail *",
+      "wc *",
+      "jq *"
+    ],
+    "deny": [
+      "rm -rf /",
+      "sudo *",
+      "chmod 777 *"
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+# Ralph Agent Rules for Cursor
+
+## Context
+You are running as part of an automated Ralph loop. Each iteration is a fresh context - memory persists only through:
+- Git history (commits from previous iterations)
+- progress.txt (learnings and patterns)
+- prd.json (task completion status)
+
+## Priorities
+1. Read progress.txt Codebase Patterns section FIRST before any implementation
+2. Complete ONE user story per iteration
+3. All code must pass quality checks before committing
+4. Update AGENTS.md with discovered patterns
+
+## Completion Signal
+When ALL stories have `passes: true`, output exactly:
+<promise>COMPLETE</promise>
+
+## Quality Gates
+- Never commit code that fails typecheck
+- Never commit code that fails tests
+- Never skip linting
+- Always verify frontend changes work
