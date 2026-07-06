@@ -1,0 +1,19 @@
+<!-- changing state — APPEND ONLY. Never rewrite or delete past entries.
+     One of the three files the loop uses to recover after a crash:
+     CONTRACT.md (what done means) · STATE.md (where we are) · log.md (what happened). -->
+
+# {{LOOP_NAME}} — Event Log
+
+> Append-only audit trail. Every run adds entries; nothing here is ever edited
+> or removed. Read this together with `CONTRACT.md` and the state file to
+> reconstruct the loop's history after a crash or lost session.
+>
+> Format: one `## [YYYY-MM-DD] op | title` header per event, followed by a
+> short body. `op` is a verb: `act`, `verify`, `restart`, `gate`, `budget`,
+> `done`.
+
+---
+
+## [scaffold] init | loop scaffolded
+
+Loop created. Contract awaiting G0 approval. No live runs yet.

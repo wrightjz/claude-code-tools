@@ -1,7 +1,7 @@
 # Create PRD Command
 
 ## Overview
-This command conducts a comprehensive product discovery interview to build a thorough Product Requirements Document. It systematically gathers requirements through strategic questioning, probing beyond surface-level answers to uncover underlying needs, constraints, and tradeoffs.
+This command conducts a comprehensive product discovery interview to build a thorough Product Requirements Document. It systematically gathers requirements through strategic questioning, probing beyond surface-level answers to uncover underlying needs, constraints, and tradeoffs. This is the sole PRD tool — run the interview and produce the documents in the main session.
 
 ## Command Syntax
 ```
@@ -13,19 +13,8 @@ This command conducts a comprehensive product discovery interview to build a tho
 
 ## Output Artifacts
 
-This command produces two documents:
-
-1. **In-Depth PRD** (`prd-[project-name].md`)
-   - Comprehensive technical specification
-   - Detailed requirements with acceptance criteria
-   - Full edge case coverage
-   - Audience: Engineering teams
-
-2. **One-Pager** (`one-pager-[project-name].md`)
-   - Technical summary format
-   - Architecture overview and key components
-   - Critical technical decisions and tradeoffs
-   - Audience: Engineers who need the gist quickly
+1. **In-Depth PRD** (`prd-[project-name].md`) — comprehensive technical specification with acceptance criteria and full edge case coverage. Audience: engineering teams.
+2. **One-Pager** (`one-pager-[project-name].md`) — architecture overview, key components, critical technical decisions. Audience: engineers who need the gist quickly.
 
 ---
 
@@ -33,17 +22,13 @@ This command produces two documents:
 
 ### Phase 1: Problem Space Exploration
 
-Begin by understanding the fundamental "why" before the "what":
-
-**Opening Questions** (use AskUserQuestion):
+Begin by understanding the fundamental "why" before the "what" (use AskUserQuestion):
 - What problem are we solving, and how do users currently work around it?
 - Who experiences this problem most acutely? What's their context?
 - What happens if we don't solve this? What's the cost of inaction?
 - What triggered the need to solve this now?
 
 ### Phase 2: User & Context Deep Dive
-
-Probe into user personas, journeys, and environmental context:
 
 **User Understanding**:
 - Walk me through a day in the life of your primary user
@@ -59,8 +44,6 @@ Probe into user personas, journeys, and environmental context:
 
 ### Phase 3: Solution Boundaries
 
-Define what we're building and explicitly what we're NOT:
-
 **Scope Definition**:
 - If you could only ship ONE thing, what would it be?
 - What features might stakeholders expect but should be explicitly excluded?
@@ -74,8 +57,6 @@ Define what we're building and explicitly what we're NOT:
 - What would failure look like?
 
 ### Phase 4: UI/UX Considerations (When Applicable)
-
-For user-facing features, explore the experience layer:
 
 **Interaction Design**:
 - How should users discover this feature?
@@ -95,8 +76,6 @@ For user-facing features, explore the experience layer:
 - Should behavior differ across platforms (web, mobile, desktop)?
 
 ### Phase 5: Technical Landscape
-
-Understand the engineering context and constraints:
 
 **Stack & Architecture**:
 - What's the current tech stack this integrates with?
@@ -118,8 +97,6 @@ Understand the engineering context and constraints:
 
 ### Phase 6: Risks & Tradeoffs
 
-Surface concerns and force prioritization decisions:
-
 **Risk Identification**:
 - What's the biggest technical risk? The biggest product risk?
 - What assumptions are we making that could be wrong?
@@ -133,8 +110,6 @@ Surface concerns and force prioritization decisions:
 - Flexibility vs. simplicity—should this be configurable or opinionated?
 
 ### Phase 7: Edge Cases & Error States
-
-The questions that separate good specs from great ones:
 
 **Boundary Conditions**:
 - What happens at zero? At one? At a million?
@@ -152,8 +127,6 @@ The questions that separate good specs from great ones:
 
 ## Interview Execution Guidelines
 
-### Question Strategy
-
 1. **Never ask more than 3-4 questions at once** - Group by theme, wait for responses
 2. **Explain the "why" behind non-obvious questions** - Build trust and get better answers
 3. **Offer options for open-ended questions** - Reduce cognitive load while gathering signal
@@ -161,8 +134,6 @@ The questions that separate good specs from great ones:
 5. **Listen for what's NOT said** - Gaps often reveal assumptions
 
 ### Adaptive Questioning
-
-Adjust your approach based on the project type:
 
 | Project Type | Emphasis Areas |
 |-------------|----------------|
@@ -172,41 +143,37 @@ Adjust your approach based on the project type:
 | Performance Work | Baseline metrics, target metrics, measurement method |
 | Infrastructure | Reliability requirements, operational burden, blast radius |
 
-### Interview Completeness Signals
+### Completeness & Quality Checklist
 
-Continue interviewing until you can confidently answer:
-- [ ] Could an engineer build this without asking me questions?
+Continue interviewing until you can confidently answer, and verify before considering the PRD done:
+- [ ] Could a senior engineer build this without asking me questions?
 - [ ] Have I challenged at least 3 assumptions the user held?
 - [ ] Do I understand the "why" behind every requirement?
 - [ ] Have I explored what happens when things go wrong?
 - [ ] Are scope boundaries explicit and agreed upon?
-- [ ] Are success metrics concrete and measurable?
+- [ ] Are success metrics concrete, measurable, and actually measuring the stated goals?
 - [ ] Have we discussed what we're NOT building?
+- [ ] Is every requirement testable? (No unquantified "fast", "easy", "seamless")
+- [ ] Do any requirements conflict with each other?
+- [ ] Are priorities clear (P0/P1/P2) and dependencies identified?
 
 ---
 
 ## Document Generation
 
-### When Interview Is Complete
+**1. In-Depth PRD** (`prd-[project-name].md`) structure:
 
-After gathering sufficient information through the interview process:
-
-**1. Generate In-Depth PRD** (`prd-[project-name].md`)
-
-Structure:
 ```markdown
 # [Project Name] - Product Requirements Document
 
 ## Document Info
-- **Author**: [User name if known]
-- **Created**: [Date]
-- **Status**: Draft | Under Review | Approved
+- **Author** / **Created** / **Status**: Draft | Under Review | Approved
 
 ## Executive Summary
 [Problem + Solution + Key metrics in 3-4 sentences]
 
 ## Background & Context
-[Current state, pain points, why now]
+[Current state, pain points, why now, stakeholders and their interests]
 
 ## Goals
 [Bulleted list of specific, measurable outcomes]
@@ -218,31 +185,33 @@ Structure:
 [Each persona with context, needs, and goals]
 
 ## User Stories & Requirements
-[Prioritized list with acceptance criteria]
-- P0 (Must Have): ...
-- P1 (Should Have): ...
-- P2 (Nice to Have): ...
+["As a [persona], I want to [action] so that [benefit]" with acceptance criteria]
+- P0 (Must Have) / P1 (Should Have) / P2 (Nice to Have)
 
 ## Functional Specifications
-[Detailed feature specs with user flows]
+[Detailed feature specs, user flows, business rules, data requirements]
 
 ## UI/UX Requirements
 [Interaction patterns, wireframe descriptions, accessibility]
 
+## Non-Functional Requirements
+### Performance (latency, throughput) & Scalability
+### Security & Compliance
+### Accessibility Standards
+### Reliability / Availability Targets
+
 ## Technical Requirements
 ### Architecture Considerations
-### Performance Requirements
-### Security Requirements
 ### Integration Points
 
 ## Edge Cases & Error Handling
-[Comprehensive coverage of boundary conditions]
+[Boundary conditions, error states, recovery paths, graceful degradation]
 
 ## Dependencies
-[External systems, teams, services]
+[External systems, teams, services, API contracts]
 
-## Success Metrics
-[KPIs with measurement methodology]
+## Success Metrics & Monitoring
+[KPIs with measurement methodology, instrumentation, alerting thresholds]
 
 ## Rollout Strategy
 [Phasing, feature flags, rollback plan]
@@ -251,15 +220,13 @@ Structure:
 [Unresolved items with owners and deadlines]
 
 ## Risks & Mitigations
-[Known risks with mitigation strategies]
 
 ## Appendix
 [Glossary, references, revision history]
 ```
 
-**2. Generate One-Pager** (`one-pager-[project-name].md`)
+**2. One-Pager** (`one-pager-[project-name].md`) structure:
 
-Structure:
 ```markdown
 # [Project Name] - Technical One-Pager
 
@@ -267,54 +234,33 @@ Structure:
 [2-3 sentences: what we're building and why]
 
 ## Architecture Overview
-[High-level description of system components and data flow]
-
-```
-[Simple ASCII or description of component relationships]
-```
+[High-level description + Mermaid diagram of component relationships]
 
 ## Key Components
 | Component | Purpose | Tech/Approach |
-|-----------|---------|---------------|
-| ... | ... | ... |
 
 ## Data Model
 [Core entities and relationships - keep it brief]
 
 ## API Surface
 - `POST /endpoint` - [what it does]
-- `GET /endpoint` - [what it does]
-[Or: "Integrates with X API for Y"]
 
 ## Technical Decisions
 | Decision | Choice | Why |
-|----------|--------|-----|
-| Database | PostgreSQL | [reason] |
-| Auth | JWT | [reason] |
-| ... | ... | ... |
 
 ## Dependencies
-- **External**: [APIs, services]
-- **Internal**: [teams, systems]
+- **External** / **Internal**
 
 ## Performance Requirements
-- Latency: [target]
-- Throughput: [target]
-- Availability: [target]
+- Latency / Throughput / Availability targets
 
 ## Security Considerations
-- [Authentication approach]
-- [Data sensitivity notes]
-- [Compliance requirements if any]
 
 ## Scope Boundaries
-**Building**: [bullet list]
-**Not Building**: [bullet list]
+**Building**: [bullets]  **Not Building**: [bullets]
 
 ## Known Risks
 | Risk | Mitigation |
-|------|------------|
-| ... | ... |
 
 ## Open Technical Questions
 - [ ] [Question] - blocks: [what it blocks]
@@ -325,176 +271,11 @@ Structure:
 
 ---
 
-## Execution Flow
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    /create-prd "DESCRIPTION"                        │
-└─────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Phase 1: Problem Space Exploration                                 │
-│  - Understand the fundamental "why"                                 │
-│  - Ask 3-4 questions using AskUserQuestion                          │
-│  - Wait for responses, probe vague answers                          │
-└─────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Phase 2: User & Context Deep Dive                                  │
-│  - Explore user personas and journeys                               │
-│  - Understand environmental constraints                             │
-│  - Uncover organizational context                                   │
-└─────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Phase 3: Solution Boundaries                                       │
-│  - Define scope (in and out)                                        │
-│  - Establish success criteria                                       │
-│  - Identify minimum lovable product                                 │
-└─────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Phase 4: UI/UX Considerations (if applicable)                      │
-│  - Interaction design questions                                     │
-│  - Visual and behavioral requirements                               │
-│  - Responsive and accessibility needs                               │
-└─────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Phase 5: Technical Landscape                                       │
-│  - Stack and architecture context                                   │
-│  - Integration requirements                                         │
-│  - Operational concerns                                             │
-└─────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Phase 6: Risks & Tradeoffs                                         │
-│  - Surface concerns proactively                                     │
-│  - Force prioritization decisions                                   │
-│  - Document assumptions                                             │
-└─────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Phase 7: Edge Cases & Error States                                 │
-│  - Boundary conditions                                              │
-│  - Recovery paths                                                   │
-│  - Support escalation                                               │
-└─────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Completeness Check                                                 │
-│  - Review all interview signals                                     │
-│  - Identify any remaining gaps                                      │
-│  - Final confirmation with user                                     │
-└─────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Document Generation                                                │
-│  - Create in-depth PRD for engineering                              │
-│  - Create one-pager for stakeholders                                │
-│  - Save both artifacts to filesystem                                │
-└─────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Summary & Next Steps                                               │
-│  - Present document locations                                       │
-│  - Highlight open questions                                         │
-│  - Suggest follow-up actions                                        │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Example Session
-
-**User:** `/create-prd "A dashboard for customer support managers to track agent performance and identify coaching opportunities"`
-
-**Agent:**
-```
-Starting PRD discovery for: Customer Support Manager Dashboard
-
-I'll be conducting a structured interview to build a comprehensive PRD.
-Let's start by understanding the problem space.
-
-**Phase 1: Problem Space**
-
-[Uses AskUserQuestion with:]
-1. What specific pain points do support managers experience today when
-   trying to track agent performance? How are they currently working around it?
-
-2. What triggered the need to solve this now? Is there a specific event,
-   complaint, or business goal driving this?
-
-3. If this dashboard didn't exist six months from now, what would the
-   business impact be?
-```
-
-**User responds with answers**
-
-**Agent:**
-```
-Thank you—that gives me good context on the urgency and current pain.
-
-**Phase 2: Users & Context**
-
-[Uses AskUserQuestion with:]
-1. Walk me through a typical day for a support manager. When and how often
-   would they realistically look at this dashboard?
-
-2. Beyond the managers themselves, who else might need access?
-   (Directors? HR? The agents themselves?)
-
-3. What systems do managers currently use that this would need to
-   complement or replace? (Zendesk? Salesforce? Spreadsheets?)
-```
-
-**[Interview continues through all phases...]**
-
-**Agent (after Phase 7):**
-```
-**Completeness Check**
-
-Based on our conversation, I can now confidently answer:
-✓ An engineer could build this without asking clarifying questions
-✓ I've challenged assumptions about real-time vs. daily data
-✓ I understand why certain metrics matter (coaching, not punishment)
-✓ Edge cases covered (new agents, transferred tickets, offline periods)
-✓ Scope boundaries are explicit (no workforce scheduling in v1)
-✓ Success metrics are concrete (25% reduction in escalations)
-✓ Non-goals documented (no gamification features)
-
-Generating documents now...
-
-**Created:**
-- `prd-support-manager-dashboard.md` (comprehensive engineering spec)
-- `one-pager-support-manager-dashboard.md` (technical summary for quick reference)
-
-**Key Open Questions to Resolve:**
-1. Data retention policy for historical performance (needs Legal input)
-2. Whether agent-level data requires works council approval (EU teams)
-3. Integration priority: Zendesk first or Salesforce first?
-
-Would you like me to walk through either document, or shall we dive into
-any of the open questions?
-```
-
----
-
 ## Best Practices
 
 1. **Patience Over Speed**: A thorough 30-minute interview beats a rushed 10-minute one
 2. **Probe, Don't Accept**: Vague answers need follow-up questions
-3. **Challenge Respectfully**: Your job is to find gaps before engineering does
+3. **Challenge Respectfully**: Your job is to find gaps before engineering does — present tradeoffs, not mandates; the user decides
 4. **Document Decisions**: Capture not just what was decided, but why
 5. **Explicit Non-Goals**: What we're NOT building is as important as what we are
 6. **Quantify Everything**: "Fast" and "easy" are meaningless without numbers
@@ -502,4 +283,4 @@ any of the open questions?
 
 ---
 
-*Version: 1.0 - Systematic PRD interview process with dual-artifact output*
+*Version: 2.0 - Sole PRD tool; folded in PM quality standards; trimmed examples*

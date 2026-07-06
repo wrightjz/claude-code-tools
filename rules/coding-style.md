@@ -1,59 +1,42 @@
 # Coding Style Rules
 
 ## General Principles
-- Prefer immutability - use `const` over `let`, avoid mutations
-- Keep functions small and focused (single responsibility)
-- Use descriptive names that reveal intent
-- No magic numbers - use named constants
+- Prefer immutability — `const` over `let`, avoid mutations.
+- Keep functions small and single-responsibility; descriptive names that reveal intent.
+- No magic numbers OR strings — use named constants; group related constants in `as const` objects with a derived type:
+  ```typescript
+  export const ErrorKey = { NOT_FOUND: "not_found", SERVER_ERROR: "server_error" } as const;
+  export type ErrorKey = (typeof ErrorKey)[keyof typeof ErrorKey];
+  ```
+
+## Naming
+- camelCase for acronyms in identifiers: `toApi`, `fromHtml`, `parseJson` (not `toAPI`). Exception: ALL_CAPS constants (`API_URL`).
+- Booleans read as questions: `isLoading`, `hasError`, `canSubmit`.
+
+## Comments
+- Comment WHY, not WHAT: early returns with non-obvious conditions, non-evident business logic, workarounds/edge cases. Code should self-document the rest.
+
+## DRY
+- Check for existing utilities before writing new code.
+- Extract patterns repeated 2+ times into shared utilities, colocated near primary usage.
+- Standardize cross-cutting concerns (HTTP error handling, Sentry logging, API calls) into single utility functions — improves testability too.
 
 ## TypeScript
-- Strict mode always enabled
-- No `any` types without explicit justification
-- Use Zod for runtime validation, not just TypeScript types
-- Prefer interfaces for objects, types for unions/primitives
-- Always define return types for exported functions
+- Strict mode always; no `any` without explicit justification.
+- Zod for runtime validation, not just types. Interfaces for objects, types for unions/primitives.
+- Explicit return types on exported functions.
 
-## File Organization
-- One component/class per file (with reasonable exceptions)
-- Keep files under 300 lines - split if larger
-- Use path aliases (`@/*`, `@lib/*`, `@app/*`)
-- Group related functionality in directories
-- Use index files for clean exports
+## Files & Imports
+- One component/class per file; keep files under 300 lines. Use path aliases (`@/*`, `@lib/*`, `@app/*`); index files for clean exports.
+- Prettier import order: external packages → internal aliases → relative imports.
 
-## Imports
-Use Prettier import sorting:
-```typescript
-// 1. External packages
-import { z } from 'zod';
-import express from 'express';
-
-// 2. Internal aliases
-import { handleRequest } from '@lib/handlers';
-import { AppConfig } from '@/types';
-
-// 3. Relative imports
-import { helper } from './utils';
-```
-
-## Code Quality
-- No `console.log` in production code (use proper logging)
-- No commented-out code - delete it (git has history)
-- Handle errors explicitly - no silent catches
-- Always await async operations (no floating promises)
+## Quality
+- No `console.log` in production code; no commented-out code (git has history).
+- Handle errors explicitly — no silent catches; always await async operations.
+- Log meaningful context with errors (status, request IDs); use structured error types (`throw new HTTPError(response.status, response.statusText)`).
 
 ## React/Next.js
-- Use App Router patterns (not Pages Router)
-- Prefer Server Components where possible
-- Use `'use client'` directive only when needed
-- Follow React 18+ patterns (concurrent features)
-
-## Tailwind CSS
-- Consider using semantic design tokens for consistency
-- Prefer React Aria or Radix for accessible components
-- Use consistent spacing and typography scales
+- App Router patterns; prefer Server Components; `'use client'` only when needed.
 
 ## Formatting
-- Let Prettier handle spacing and formatting
-- No emojis in code comments or variable names
-- 100 character line width
-- Single quotes, trailing commas (es5)
+- Prettier handles formatting: 100-char width, single quotes, es5 trailing commas. No emojis in code comments or identifiers.

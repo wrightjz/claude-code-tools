@@ -36,17 +36,17 @@ You can install components progressively based on your needs:
 ### Base Setup (Quick Start)
 
 **What you get:**
-- 10 custom agents (planner, product-manager, systems-architect, etc.)
-- 3 custom commands (/create-prd, /refactor-clean, /read-gdoc)
-- 1 custom skill (codemap-updater)
+- 2 custom agents (codebase-auditor, systems-architect)
+- 6 custom commands (/spec, /plan, /sync-linear, /audit, /create-prd, /read-gdoc)
+- 6 skills (build, loop-maker, codemap-updater, diagrams, ui-implementation, web-design-guidelines)
 
 **Time:** ~2 minutes
 
 ### Standard Setup (Recommended)
 
 Everything in Base, plus:
-- 7 rule files (coding-style, testing, git-workflow, etc.)
-- Safety hooks (block dangerous commands, console.log warnings)
+- 4 rule files (coding-style, git-workflow, security, caveman)
+- Safety hooks (block dangerous commands, prettier push check)
 
 **Time:** ~3 minutes
 
@@ -209,23 +209,20 @@ For Linear issue tracking:
 
 | Agent | Purpose | When to Use |
 |-------|---------|-------------|
-| **planner** | Break down tasks | Feature planning, task decomposition |
-| **product-manager** | Create PRDs | New features, requirements gathering |
-| **systems-architect** | Technical architecture | System design, API design |
-| **elegant-code-architect** | Write clean code | Quality implementations |
 | **codebase-auditor** | Deep code audit | Tech debt, periodic cleanup |
-| **tdd-guide** | Test-driven development | Writing tests first |
-| **ui-ux-designer** | Design interfaces | UI features, accessibility |
-| **workflow-architect** | Design workflows | Process automation |
-| **workflow-implementer** | Implement workflows | Building from designs |
-| **build-error-resolver** | Fix build errors | Unblock development |
+| **systems-architect** | Technical architecture | System design, API design |
+
+For planning, exploration, and general delegation, use Claude Code's built-in Plan, Explore, and general-purpose agents.
 
 ### Commands
 
 | Command | Purpose |
 |---------|---------|
+| `/spec` | Fast one-round spec interview → `docs/spec.md` |
+| `/plan` | Break the spec into epics/atomic stories → `docs/plan.md` |
+| `/sync-linear` | Push the plan to Linear as epics/stories with dependencies |
+| `/audit` | Post-epic tech-debt + requirements-alignment audit |
 | `/create-prd` | Conduct discovery interview and create product requirements |
-| `/refactor-clean` | Clean up dead code, unused files, improve quality |
 | `/read-gdoc` | Fetch and parse Google Docs as Markdown |
 
 ### Rules
@@ -233,21 +230,28 @@ For Linear issue tracking:
 | Rule | What it Enforces |
 |------|------------------|
 | **coding-style.md** | TypeScript, imports, formatting |
-| **testing.md** | Vitest, TDD, coverage patterns |
 | **git-workflow.md** | Conventional commits, PR guidelines |
-| **agents.md** | When to delegate to subagents |
 | **security.md** | Secrets handling, input validation |
-| **performance.md** | Model selection, context management |
-| **ui-implementation.md** | Touch targets, animation, forms, accessibility |
+| **caveman.md** | Opt-in terse response mode for token savings |
+
+### Skills
+
+| Skill | Purpose |
+|-------|---------|
+| **build** | TDD cycle per story (tests → implement → verify → commit) |
+| **loop-maker** | Scaffold self-running agent loops (contract + two-tier verification) |
+| **codemap-updater** | Generate CODEMAP.md navigation files |
+| **diagrams** | Mermaid-first diagram standards and themes |
+| **ui-implementation** | UI checklist: forms, focus, loading states, a11y |
+| **web-design-guidelines** | Audit UI against Vercel's Web Interface Guidelines |
 
 ### Hooks
 
 | Hook | Trigger | Action |
 |------|---------|--------|
 | **Dangerous command blocker** | rm -rf, git push --force | Blocks execution |
-| **TypeScript check** | Edit .ts/.tsx | Runs tsc --noEmit |
-| **Prettier format** | Edit JS/TS | Auto-formats if config exists |
-| **console.log warning** | Edit any file | Warns if console.log present |
+| **Prettier push check** | git push | Blocks push if outgoing files fail `prettier --check` |
+| **hooks.json examples** | Various | npm-vs-pnpm, stray markdown, console.log warnings |
 
 ---
 
@@ -268,7 +272,7 @@ You should see the list of installed agents.
 
 Try running a command:
 ```
-/refactor-clean
+/spec "a small test feature"
 ```
 
 ### 3. Check Rules
@@ -280,7 +284,7 @@ What coding style rules are active?
 
 ### 4. Test Hooks
 
-Edit a TypeScript file - you should see type checking run automatically.
+Try `rm -rf /tmp/test` in a Bash request — the dangerous-command hook should block it.
 
 ---
 
@@ -349,33 +353,31 @@ After installation, your Claude config should look like:
 ```
 ~/.claude/
 ├── agents/
-│   ├── planner.md
-│   ├── product-manager.md
-│   ├── systems-architect.md
-│   ├── elegant-code-architect.md
 │   ├── codebase-auditor.md
-│   ├── tdd-guide.md
-│   ├── ui-ux-designer.md
-│   ├── workflow-architect.md
-│   ├── workflow-implementer.md
-│   └── build-error-resolver.md
+│   └── systems-architect.md
 ├── commands/
+│   ├── audit.md
 │   ├── create-prd.md
-│   ├── refactor-clean.md
-│   └── read-gdoc.md
+│   ├── plan.md
+│   ├── read-gdoc.md
+│   ├── spec.md
+│   └── sync-linear.md
 ├── rules/
-│   ├── agents.md
+│   ├── caveman.md
 │   ├── coding-style.md
 │   ├── git-workflow.md
-│   ├── performance.md
-│   ├── security.md
-│   ├── testing.md
-│   └── ui-implementation.md
+│   └── security.md
 ├── skills/
-│   └── codemap-updater/
+│   ├── build/
+│   ├── codemap-updater/
+│   ├── diagrams/
+│   ├── loop-maker/
+│   ├── ui-implementation/
+│   └── web-design-guidelines/
 └── hooks/
     ├── hooks.json
-    └── block-dangerous-commands.py
+    ├── block-dangerous-commands.py
+    └── prettier-before-push.sh
 ```
 
 ---

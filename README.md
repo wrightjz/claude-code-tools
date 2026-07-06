@@ -6,12 +6,13 @@ A collection of agents, commands, rules, and skills to supercharge your [Claude 
 
 | Component | Count | Description |
 |-----------|-------|-------------|
-| **Agents** | 10 | Specialized AI assistants for different tasks |
-| **Commands** | 3 | Slash commands for common workflows |
-| **Rules** | 7 | Coding standards and best practices |
-| **Skills** | 1 | Advanced capabilities |
-| **Hooks** | 2 | Safety guards against dangerous operations |
-| **Ralph** | 1 | Autonomous AI loop for complex tasks |
+| **Agents** | 2 | Specialized subagents for audits and architecture |
+| **Commands** | 6 | Slash commands for a spec → plan → build pipeline |
+| **Rules** | 4 | Coding standards and best practices |
+| **Skills** | 6 | On-demand capabilities (TDD builds, loops, diagrams, UI) |
+| **Hooks** | 3 | Safety guards and formatting checks |
+
+> **Design philosophy (2026 update):** always-loaded rules are kept small; anything task-specific lives in on-demand skills. Custom agents exist only where they carry knowledge the built-in agents (Explore, Plan, general-purpose) don't. The old Ralph autonomous loop has been retired in favor of the `loop-maker` skill.
 
 ## Quick Start
 
@@ -44,70 +45,53 @@ cp hooks/* ~/.claude/hooks/
 
 ### Agents
 
-Specialized AI assistants that handle specific types of tasks:
+Custom subagents for tasks the built-in agents don't cover. Both inherit your session's model (no pins).
 
-| Agent | Purpose | Model |
-|-------|---------|-------|
-| **planner** | Break down features into actionable tasks | Sonnet |
-| **product-manager** | Create and refine PRDs | Opus |
-| **systems-architect** | Design technical architecture | Opus |
-| **elegant-code-architect** | Write clean, maintainable code | Opus |
-| **codebase-auditor** | Deep audit and tech debt analysis | Opus |
-| **tdd-guide** | Test-driven development guidance | Sonnet |
-| **ui-ux-designer** | UI/UX design and accessibility | Sonnet |
-| **workflow-architect** | Design complex workflows | Opus |
-| **workflow-implementer** | Implement workflow designs | Sonnet |
-| **build-error-resolver** | Fix build and type errors | Haiku |
+| Agent | Purpose |
+|-------|---------|
+| **codebase-auditor** | Whole-repo tech-debt audit with a risk-tiered report; applies only zero-risk cleanups |
+| **systems-architect** | Turn a PRD into a technical architecture document and phased implementation plan |
 
-**Usage**: Agents are automatically used by Claude Code when tasks match their expertise. You can also explicitly request an agent:
-
-```
-Use the planner agent to break down this feature
-```
+For planning, exploration, and general delegation, use Claude Code's built-in Plan, Explore, and general-purpose agents.
 
 ### Commands
 
-Slash commands for common development workflows:
+A coherent development pipeline producing durable artifacts:
 
 | Command | Description |
 |---------|-------------|
-| `/create-prd "description"` | Conduct a discovery interview and create a comprehensive PRD |
-| `/refactor-clean` | Clean up dead code, unused files, and improve code quality |
+| `/spec "description"` | One round of questions → `docs/spec.md` |
+| `/plan` | Spec → `docs/plan.md` with epics, atomic stories, dependency order |
+| `/sync-linear` | Push the plan to Linear as epics/stories with blocking relations |
+| `/audit` | Post-epic audit: tech debt + requirements-alignment vs spec/plan |
+| `/create-prd "description"` | Discovery interview → comprehensive PRD (heavier than /spec) |
 | `/read-gdoc [url]` | Fetch and parse Google Docs as Markdown |
 
-**Usage**: Type the command in Claude Code:
-
-```
-/create-prd "Add user authentication with OAuth"
-```
+The `build` **skill** closes the loop: `/build ENG-123` runs a full TDD cycle per story.
 
 ### Rules
 
-Coding standards that Claude Code follows during development:
+Always-loaded standards — deliberately lean (keep your global CLAUDE.md under 200 lines; move task-specific material into skills):
 
 | Rule | Focus |
 |------|-------|
-| **coding-style.md** | TypeScript best practices, file organization |
-| **testing.md** | Vitest config, TDD practices, coverage |
-| **git-workflow.md** | Conventional commits, PR guidelines |
-| **agents.md** | When and how to delegate to agents |
+| **coding-style.md** | TypeScript best practices, naming, DRY, file organization |
+| **git-workflow.md** | Conventional commits, branch and PR hygiene |
 | **security.md** | Secrets handling, input validation |
-| **performance.md** | Model selection, context management |
-| **ui-implementation.md** | Accessibility, animation, forms |
+| **caveman.md** | Opt-in terse response mode ("caveman mode") for token savings |
 
 ### Skills
 
-Advanced capabilities for specific tasks:
+On-demand capabilities — they cost no context until invoked:
 
 | Skill | Description |
 |-------|-------------|
+| **build** | Unified TDD workflow per story (tests → implement → verify → commit → update Linear) |
+| **loop-maker** | Scaffold self-running, self-verifying agent loops (contract + two-tier verification). Successor to Ralph. Fork of [EricTechPro/loop-maker](https://github.com/EricTechPro/loop-maker) with a Karpathy LOOPS.md-style upgrade |
 | **codemap-updater** | Generate CODEMAP.md files for codebase navigation |
-
-**Usage**: Skills are invoked automatically when relevant, or manually:
-
-```
-Generate a codemap for this project
-```
+| **diagrams** | Mermaid-first diagram standards and beautiful-mermaid theming |
+| **ui-implementation** | Tactical UI checklist: shadcn/ui, forms, focus, loading states, a11y |
+| **web-design-guidelines** | Audit UI code against Vercel's Web Interface Guidelines (fetched fresh each run) |
 
 ### Hooks
 
@@ -116,25 +100,18 @@ Safety mechanisms that run before/after tool execution:
 | Hook | Protection |
 |------|------------|
 | **block-dangerous-commands.py** | Blocks `rm -rf`, `git push --force`, etc. |
-| **hooks.json** | Warns about npm vs pnpm, markdown creation, console.log |
-
-### Ralph (Autonomous Loop)
-
-An autonomous AI agent loop for complex, multi-step tasks. Ralph maintains state across context windows using git and progress files.
-
-See [ralph/README.md](ralph/README.md) for full documentation.
+| **prettier-before-push.sh** | Blocks `git push` when outgoing files fail `prettier --check` (never rewrites your commits) |
+| **hooks.json** | Example warnings: npm vs pnpm, stray markdown creation, console.log |
 
 ## Directory Structure
 
 ```
 claude-code-tools/
-├── agents/           # Specialized AI assistants
-├── commands/         # Slash commands
-├── rules/            # Coding standards
-├── skills/           # Advanced capabilities
-│   └── codemap-updater/
+├── agents/           # Custom subagents
+├── commands/         # Slash commands (pipeline)
+├── rules/            # Always-loaded standards
+├── skills/           # On-demand capabilities
 ├── hooks/            # Safety guards
-├── ralph/            # Autonomous loop tool
 ├── install.sh        # Automated installer
 ├── README.md         # This file
 └── SETUP.md          # Detailed setup guide
@@ -150,35 +127,45 @@ Create a markdown file in `~/.claude/agents/`:
 ---
 name: my-agent
 description: What this agent does and when to use it
-model: sonnet
 ---
 
 Instructions for the agent...
 ```
 
-### Adding Your Own Commands
+Omit `model:` to inherit the session model (recommended); write subagent prompts to state assumptions and proceed — subagents run one-shot and cannot ask you questions mid-task.
 
-Create a markdown file in `~/.claude/commands/`:
+### Adding Your Own Skills
+
+Create `~/.claude/skills/my-skill/SKILL.md`:
 
 ```markdown
-# My Command
+---
+name: my-skill
+description: One sentence Claude uses to decide when to auto-invoke this.
+---
 
-Instructions that execute when the user types /my-command
+Instructions loaded when the skill triggers (also callable as /my-skill)...
 ```
+
+Prefer skills over always-loaded rules for anything task-specific — they load on demand and keep your context lean.
 
 ### Adding Your Own Rules
 
-Create a markdown file in `~/.claude/rules/`:
+Create a markdown file in `~/.claude/rules/`. Add `paths:` frontmatter to scope a rule to specific file types so it only loads when relevant:
 
 ```markdown
-# My Rules
+---
+paths:
+  - "**/*.ts"
+  - "**/*.tsx"
+---
 
-Guidelines that Claude Code will follow in this project
+# My TypeScript Rules
 ```
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 20+
 - Git
 - [Claude Code](https://claude.ai/claude-code) installed
 
@@ -197,4 +184,4 @@ MIT License - see LICENSE file for details.
 
 ## Acknowledgments
 
-Built for the Claude Code community. Inspired by the need for consistent, high-quality AI-assisted development workflows.
+Built for the Claude Code community. `loop-maker` is forked from [EricTechPro/loop-maker](https://github.com/EricTechPro/loop-maker) (MIT). Inspired by the need for consistent, high-quality AI-assisted development workflows.

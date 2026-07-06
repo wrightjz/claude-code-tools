@@ -1,0 +1,98 @@
+---
+name: {{LOOP_NAME}}
+description: >
+  Self-running loop: {{GOAL}}
+---
+
+# {{LOOP_NAME}}
+
+## Goal
+
+**Exit predicate:** {{GOAL}}
+
+The loop runs until this condition holds. Every iteration checks the predicate
+after verification passes. When it holds, the loop stops and writes a final
+summary to the state file.
+
+---
+
+## Conventions (durable only — never write progress here)
+
+This file is **read-only at runtime.** It carries logic, not state.
+
+Rules:
+- **Never write progress, counters, timestamps, or iteration results here.**
+  All changing data belongs in the external state file at `{{STATE_PATH}}`.
+- This file is loaded fresh on every cold start. Anything written here between
+  runs disappears the moment the next run reloads it from disk.
+- Durable knowledge only: the goal predicate, the action steps, the
+  verification call, and the stop criteria.
+
+The boundary is simple: if a value changes between runs, it goes in
+`{{STATE_PATH}}`. If it never changes, it may live here.
+
+---
+
+## Pattern: {{PATTERN}}
+
+The loop follows the **{{PATTERN}}** pattern. Each iteration proceeds in order:
+
+1. **Read state** — load `CONTRACT.md` (what "done" means), `{{STATE_PATH}}`
+   (where the loop left off), and `log.md` (what happened). These three files
+   are the loop's entire memory after a cold start.
+2. **Discover** — query the source (directory, API, queue, feed) for items to act on.
+3. **Act** — perform the iteration's core action on the discovered items.
+4. **Verify** — run the verifier(s), reading only the binary exit code:
+   - **Tier 1** — `verifier.sh` (tests/typecheck/lint/build). Exit 1 → failed.
+   - **Tier 2** (code + quality loops only) — the adversarial reviewer scores
+     the diff against `review-rubric.md`; `review_gate.py` returns the verdict.
+     Runs only if tier 1 passed. Exit 1 → below the senior bar.
+   - Both tiers pass → iteration passed; advance state and continue.
+5. **Write state** — update `{{STATE_PATH}}` with the new position, counters,
+   and timestamp; append an entry to `log.md`. Do this before stopping or
+   looping.
+6. **Check exit predicate** — if `{{GOAL}}` now holds and `CONTRACT.md`
+   assertions are satisfied, stop; otherwise repeat.
+
+**Failure policy: restart within budget.** A failed check is normal. Within the
+budget in `HUMAN-GATES.md`, retry or throw the iteration away and restart from a
+clean state — do not wait for a human. Increment `consecutive_fails` in
+`{{STATE_PATH}}` and log the reason. Escalate (gate G2) only after N consecutive
+failures, or halt when the budget is hit. A human is pulled in when the contract
+is wrong (G0), not when the build is red. Irreversible actions (merge, publish,
+delete) remain permanently gated.
+
+---
+
+## How to run
+
+Start the loop by launching this skill with the goal predicate as the session
+objective. The exact invocation depends on your host — consult `TRIGGER.md`
+for the per-host one-liner and the host-agnostic fallback.
+
+Before the first live run:
+1. Confirm `{{STATE_PATH}}`, `CONTRACT.md`, and `log.md` exist and are
+   initialized (empty table, current timestamp in "Last run").
+2. **Approve the contract (gate G0):** review `CONTRACT.md` and confirm the
+   assertions describe the right "done" before any action runs.
+3. Review `HUMAN-GATES.md` — all gates listed there must be passed before
+   real actions begin.
+4. Confirm the verifier is executable and returns 0 on a known-good input. For
+   a two-tier loop, confirm `review_gate.py` passes on a known-good score and
+   the rubric is calibrated against your good/slop examples.
+
+---
+
+## What "done" means
+
+The loop is done when **all** of the following hold:
+
+- The exit predicate `{{GOAL}}` is verifiably true.
+- Every assertion in `CONTRACT.md` is satisfied.
+- The verifier(s) returned exit 0 on the final iteration — both tiers for a
+  two-tier loop.
+- `{{STATE_PATH}}` has been updated with a "Last run" timestamp and a final
+  status row in the ledger, and `log.md` has a `done` entry.
+- No human gate in `HUMAN-GATES.md` is still open.
+
+At that point the loop writes `status: done` into the ledger and exits cleanly.

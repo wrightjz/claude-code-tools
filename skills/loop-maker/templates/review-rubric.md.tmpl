@@ -1,0 +1,71 @@
+<!-- durable knowledge — install read-only alongside SKILL.md. The reviewer
+     loads this each run; it does not change between runs. -->
+
+# {{LOOP_NAME}} — Review Rubric
+
+> Taste is gradable once it is written down. This rubric is how the loop decides
+> whether code is clean enough to pass a senior/principal review. The reviewer
+> is a **separate agent** told the code is broken and asked to prove it. It
+> scores each axis 0–1, then `review_gate.py` turns the scores into a binary
+> pass/fail — the loop reads the exit code, never the prose.
+
+---
+
+## Axes and weights
+
+| Axis | Weight | 1.0 looks like | 0.0 looks like |
+|------|--------|----------------|----------------|
+| Correctness | 0.30 | Does exactly what the contract says; handles edge cases; no logic errors | Wrong output, unhandled cases, silent failures |
+| Simplicity | 0.20 | Simplest design that works; no speculative abstraction; least code that satisfies the contract | Over-engineered, needless layers, cleverness for its own sake |
+| Readability | 0.20 | A reviewer understands it on first read, no walkthrough needed; intent-revealing names | Cryptic names, tangled control flow, needs the author to explain |
+| Maintainability | 0.20 | Easy to change safely; follows existing project patterns; no duplication | Copy-paste, tight coupling, fights the codebase's conventions |
+| Test quality | 0.10 | Tests assert real behavior and would catch a regression | Smoke tests only, asserts nothing meaningful, tautological |
+
+Weights sum to 1.0. The weighted total is the overall score.
+
+---
+
+## Pass threshold (senior bar)
+
+The review gate passes only if **both** hold:
+
+- **Overall** weighted score ≥ **0.85**
+- **Every axis** ≥ **0.70** (no single axis may tank, even if the average is high)
+
+These values live in `review_gate.py` as the authoritative policy. If you change
+them, change them there too — the two must agree.
+
+---
+
+## Calibration references
+
+Before trusting the rubric, calibrate it. Point the reviewer at:
+
+- **2–3 examples you consider good** (existing files or PRs you would approve).
+  The rubric should score them ≥ 0.85.
+- **2–3 examples you consider slop** (or deliberately degraded copies). The
+  rubric should score them well below 0.70 on at least one axis.
+
+If the scores do not separate the good from the slop, the rubric is miscalibrated
+— tighten the axis descriptions before running the loop live.
+
+---
+
+## Reviewer output schema
+
+The reviewer must emit exactly this JSON (consumed by `review_gate.py`), followed
+by one paragraph naming the single biggest gap and how to close it:
+
+```json
+{
+  "correctness": 0.0,
+  "simplicity": 0.0,
+  "readability": 0.0,
+  "maintainability": 0.0,
+  "test_quality": 0.0
+}
+```
+
+The paragraph is for the generator's next iteration; the JSON is for the gate.
+Vague feedback ("make it better") produces circular revisions — name the
+specific gap and the specific fix.

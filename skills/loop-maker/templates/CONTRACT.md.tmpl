@@ -1,0 +1,46 @@
+<!-- negotiated artifact — the checklist that gets GRADED. Read every run;
+     amended only through the contract gate (G0). Not durable skill logic. -->
+
+# {{LOOP_NAME}} — Contract
+
+> This is what "done" means, stated as assertions a program or a reviewer can
+> check. The goal predicate is the boundary; **this contract is what gets
+> graded.** Before the first live run, a human approves it (gate G0). The loop
+> may propose amendments, but a human must approve any change to this file.
+
+**Goal predicate (boundary):** {{GOAL}}
+
+---
+
+## Testable assertions
+
+Each row is a single, checkable claim about the finished work. Mark how it is
+verified: `tier-1` (deterministic — tests/typecheck/lint/build) or `tier-2`
+(rubric review). Aim for enough assertions that "done" is unambiguous; a
+handful gets rubber-stamped.
+
+| # | Assertion | Verified by | Status |
+|---|-----------|-------------|--------|
+| A1 | All existing and new tests pass | tier-1 | pending |
+| A2 | `typecheck` reports no errors | tier-1 | pending |
+| A3 | `lint` reports no errors | tier-1 | pending |
+| A4 | Build succeeds | tier-1 | pending |
+| A5 | New behavior is covered by meaningful tests (not just smoke) | tier-2 | pending |
+| A6 | The change is the simplest design that satisfies A1–A5 | tier-2 | pending |
+| A7 | A reviewer unfamiliar with the change can read it without a walkthrough | tier-2 | pending |
+| A8 | No dead code, no commented-out code, no duplicated logic introduced | tier-2 | pending |
+
+<!--
+Add domain-specific assertions below A8. Delete any row that genuinely does not
+apply, but keep A1–A4 (the deterministic floor) unless the loop touches no code.
+Each assertion must be checkable — if you cannot say how it would be verified,
+it is a wish, not an assertion.
+-->
+
+---
+
+## Amendment log
+
+<!-- Append one line whenever the contract changes, with the approving human. -->
+
+- (scaffold) initial contract drafted from goal predicate — awaiting G0 approval

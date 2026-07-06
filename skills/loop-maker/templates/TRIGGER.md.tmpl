@@ -1,0 +1,105 @@
+# {{LOOP_NAME}} — Trigger Definition
+
+> This file is the host-agnostic launch contract for the loop. It specifies
+> what the loop is trying to achieve, where its state lives, and exactly how
+> to start a run — with a Claude Code one-liner and a plain fallback that
+> works on any platform.
+
+---
+
+## Verifiable goal
+
+The loop stops when this predicate holds:
+
+> **{{GOAL}}**
+
+Every run must check this predicate after the verifier passes. If it holds,
+the loop writes a final summary to the state file and exits cleanly.
+
+---
+
+## State file
+
+```
+{{STATE_PATH}}
+```
+
+Every run reads this file at startup and writes it before stopping. If the
+file is missing or empty, treat it as a first run and initialize the ledger
+before taking any action.
+
+---
+
+## Launch prompt
+
+Pass this prompt verbatim when starting the loop manually or via a scheduler:
+
+> Read the loop's `CONTRACT.md`, `{{STATE_PATH}}`, and `log.md`, plus the
+> loop's `SKILL.md`, then run one iteration of the {{LOOP_NAME}} loop.
+
+That is the host-agnostic fallback. It works on any platform that can load a
+skill file and read markdown files — no host-specific tooling required. The
+three files (`CONTRACT.md`, `{{STATE_PATH}}`, `log.md`) are the loop's entire
+memory; the prompt must name all of them so a cold start recovers fully.
+
+---
+
+## How to start
+
+### Claude Code (built-in `/loop` and `/schedule` skills)
+
+Self-paced, run-until-done — the default fit for a goal-predicate loop
+(`/loop <prompt>` with no interval):
+
+```
+/loop Read the loop's CONTRACT.md, {{STATE_PATH}}, and log.md, plus the loop's SKILL.md, then run one iteration of the {{LOOP_NAME}} loop.
+```
+
+To poll on a fixed cadence instead, put an interval before the prompt
+(`/loop <interval> <prompt>`):
+
+```
+/loop 10m Read the loop's CONTRACT.md, {{STATE_PATH}}, and log.md, plus the loop's SKILL.md, then run one iteration of the {{LOOP_NAME}} loop.
+```
+
+For an unattended recurring run in the cloud, use `/schedule` to create a
+cron-scheduled routine with the same launch prompt.
+
+`/loop` and `/schedule` are built-in Claude Code skills, but their syntax can
+change between versions — verify against your installed version's docs. See
+`references/host-adapters.md` for the current Claude Code mechanics.
+
+### Other hosts
+
+For non-Claude hosts, verify scheduling/loop mechanics against that host's
+current docs before scaffolding — then wire the launch prompt below into its
+scheduler or runner.
+
+### Fallback (host-agnostic — works on any platform)
+
+```
+Read the loop's CONTRACT.md, {{STATE_PATH}}, and log.md, plus the loop's SKILL.md, then run one iteration of the {{LOOP_NAME}} loop.
+```
+
+Paste this as the opening prompt in any agent session. The loop's `SKILL.md`
+contains all logic; `CONTRACT.md`, `{{STATE_PATH}}`, and `log.md` contain all
+state. No additional tooling is needed.
+
+---
+
+## Trigger notes
+
+- **Gate G0 comes first.** Do not fire any trigger until a human has reviewed
+  and approved `CONTRACT.md` — the contract, not the build, is what a human
+  signs off on. Confirm G0 is cleared in `HUMAN-GATES.md` before the first
+  live run.
+- Before enabling any automated trigger, confirm the remaining gates in
+  `HUMAN-GATES.md` — G1 (pre-run sign-off) and G2 (non-convergence: N
+  consecutive verifier failures) — are in place and that the approver is
+  reachable. An ordinary red build does NOT page a human; restart within
+  budget instead.
+- The budget / stop limits in `HUMAN-GATES.md` take precedence over any
+  scheduler interval. If the loop hits its iteration or cost cap, it halts
+  regardless of how often the trigger fires.
+- Trigger syntax above is current for Claude Code at authoring time — verify
+  against current host docs before relying on it.
